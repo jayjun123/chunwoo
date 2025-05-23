@@ -1,0 +1,230 @@
+.discussion-list-container {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.discussion-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.discussion-list-header h2 {
+  color: var(--text-main);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.add-discussion-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-discussion-btn:hover {
+  background: var(--primary-hover);
+}
+
+.add-discussion-form {
+  background: var(--bg-main);
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.add-discussion-form input,
+.add-discussion-form select,
+.add-discussion-form textarea {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.add-discussion-form textarea {
+  grid-column: 1 / -1;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.add-discussion-form input:focus,
+.add-discussion-form select:focus,
+.add-discussion-form textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.form-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-buttons button[type="submit"] {
+  background: var(--primary);
+  color: #fff;
+}
+
+.form-buttons button[type="submit"]:hover {
+  background: var(--primary-hover);
+}
+
+.form-buttons button[type="button"] {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.form-buttons button[type="button"]:hover {
+  background: var(--border);
+}
+
+.discussion-list {
+  display: grid;
+  gap: 16px;
+}
+
+.discussion-card {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.discussion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.discussion-header h3 {
+  color: var(--text-main);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-badge.진행중 {
+  background: var(--primary);
+  color: #fff;
+}
+
+.status-badge.완료 {
+  background: var(--success);
+  color: #fff;
+}
+
+.status-badge.보류 {
+  background: var(--warning);
+  color: #fff;
+}
+
+.discussion-info {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+}
+
+.discussion-content {
+  color: var(--text-main);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.discussion-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.discussion-actions select {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.delete-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+.error-message {
+  color: var(--danger);
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+}
+
+.loading {
+  color: var(--text-sub);
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .discussion-list-container {
+    padding: 16px;
+  }
+
+  .add-discussion-form {
+    grid-template-columns: 1fr;
+  }
+
+  .discussion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .discussion-info {
+    flex-direction: column;
+    gap: 4px;
+  }
+} 

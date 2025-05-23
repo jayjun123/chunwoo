@@ -1,0 +1,177 @@
+.user-list-container {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.user-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-list-header h2 {
+  color: var(--text-main);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.add-user-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-user-btn:hover {
+  background: var(--primary-hover);
+}
+
+.add-user-form {
+  background: var(--bg-main);
+  padding: 20px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.add-user-form input,
+.add-user-form select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 1rem;
+}
+
+.add-user-form input:focus,
+.add-user-form select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.form-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-buttons button[type="submit"] {
+  background: var(--primary);
+  color: #fff;
+}
+
+.form-buttons button[type="submit"]:hover {
+  background: var(--primary-hover);
+}
+
+.form-buttons button[type="button"] {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.form-buttons button[type="button"]:hover {
+  background: var(--border);
+}
+
+.user-list {
+  overflow-x: auto;
+}
+
+.user-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.user-list th,
+.user-list td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-list th {
+  color: var(--text-sub);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.user-list td {
+  color: var(--text-main);
+}
+
+.user-list select {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.delete-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+}
+
+.error-message {
+  color: var(--danger);
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+}
+
+.loading {
+  color: var(--text-sub);
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .user-list-container {
+    padding: 16px;
+  }
+
+  .add-user-form {
+    grid-template-columns: 1fr;
+  }
+
+  .user-list th,
+  .user-list td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+} 

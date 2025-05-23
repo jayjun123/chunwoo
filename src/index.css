@@ -1,0 +1,42 @@
+:root {
+  --bg-main: #181c24;
+  --bg-card: #232837;
+  --bg-header: #232837;
+  --text-main: #fff;
+  --text-sub: #b3b8c5;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --border: #2d3344;
+  --radius: 12px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.12);
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Noto Sans KR', Arial, sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+} 
