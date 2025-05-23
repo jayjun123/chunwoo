@@ -123,31 +123,36 @@ function Calendar() {
       setError('기간을 선택해주세요.');
       return;
     }
-
     const [startYear, startMonthNum] = startMonth.split('-').map(Number);
     const [endYear, endMonthNum] = endMonth.split('-').map(Number);
-    
     const startDate = new Date(startYear, startMonthNum - 1, 1);
     const endDate = new Date(endYear, endMonthNum, 0);
-
     const orderedSites = siteOrder
       .map(id => sites.find(site => site.id === id))
       .filter(site => site && isSiteInDateRange(site, startDate, endDate));
-
     const data = orderedSites.map(site => {
       const status = getStatusBadge(site);
       return {
-        현장명: site.name,
-        상태: status.text,
-        계약금액: site.contractAmount,
-        공사기간: `${site.startDate} ~ ${site.endDate}`
+        '현장명': site.name,
+        '상태': status.text,
+        '계약금액': site.contractAmount,
+        '공사기간': `${site.startDate} ~ ${site.endDate}`
       };
     });
-
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '현장목록');
-    XLSX.writeFile(wb, `현장목록_${startYear}년${startMonthNum}월_${endYear}년${endMonthNum}월.xlsx`);
+    // CSV 변환
+    const header = Object.keys(data[0] || {}).join(',');
+    const rows = data.map(row => Object.values(row).join(','));
+    const csv = [header, ...rows].join('\r\n');
+    // BOM 추가
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `현장목록_${startYear}년${startMonthNum}월_${endYear}년${endMonthNum}월.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const isSiteInDateRange = (site, startDate, endDate) => {
@@ -296,6 +301,9 @@ function Calendar() {
                           <span className="site-name">
                             {site.name.length > 7 ? site.name.substring(0, 7) + '...' : site.name}
                           </span>
+                          <div className="site-period" style={{ fontSize: '0.9em', color: 'var(--text-sub)', marginLeft: '8px' }}>
+                            {site.startDate && site.endDate ? `공사기간: ${site.startDate} ~ ${site.endDate}` : ''}
+                          </div>
                         </div>
                       )}
                     </Draggable>
