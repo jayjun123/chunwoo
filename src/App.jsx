@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Header from './components/Header'
 import Login from './components/Login'
@@ -8,28 +8,31 @@ import ProgressList from './components/ProgressList'
 import DiscussionList from './components/DiscussionList'
 import UserList from './components/UserList'
 import Calendar from './components/Calendar'
+import LoginForm from './components/LoginForm'
+import { subscribeAuthState } from './services/auth'
+import { UserProvider, useUser } from './components/UserContext'
 import './App.css'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('all');
+  const [user, setUser] = useState(null);
 
-  return (
-    <AuthProvider>
-      <AppContent activeTab={activeTab} setActiveTab={setActiveTab} />
-    </AuthProvider>
-  );
+  useEffect(() => {
+    const unsubscribe = subscribeAuthState(setUser);
+    return () => unsubscribe();
+  }, []);
+
+  if (!user) return <LoginForm />;
+  return <SiteList />;
 }
 
 function AppContent({ activeTab, setActiveTab }) {
   const { currentUser } = useAuth();
+  const { user, userData, loading, logout } = useUser();
 
-  if (!currentUser) {
-    return (
-      <div className="app">
-        <Login />
-      </div>
-    );
-  }
+  if (loading) return <div>로딩 중...</div>;
+  if (!user) return <LoginForm />;
+  if (!userData) return <div>회원 정보 불러오는 중...</div>;
+  if (userData.status !== '승인') return <div>관리자 승인 대기 중입니다.</div>;
 
   return (
     <div className="app">
@@ -42,8 +45,17 @@ function AppContent({ activeTab, setActiveTab }) {
         {activeTab === 'users' && <UserList />}
         {activeTab === 'calendar' && <Calendar />}
       </main>
+      <button onClick={logout}>로그아웃</button>
     </div>
   );
 }
 
-export default App 
+export default function AppWrapper() {
+  return (
+    <UserProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </UserProvider>
+  );
+} 

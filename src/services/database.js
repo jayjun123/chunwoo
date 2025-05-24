@@ -9,7 +9,7 @@ import {
   getDocs,
   onSnapshot
 } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db } from '../firebase';
 
 // 전체현장리스트 (데이터베이스 1)
 export const sitesCollection = collection(db, 'sites');
@@ -24,12 +24,21 @@ export const discussionsCollection = collection(db, 'discussions');
 export const usersCollection = collection(db, 'users');
 
 // 전체현장리스트 관련 함수
-export const addSite = (siteData) => addDoc(sitesCollection, siteData);
-export const updateSite = (id, data) => updateDoc(doc(sitesCollection, id), data);
-export const deleteSite = (id) => deleteDoc(doc(sitesCollection, id));
-export const getSites = () => getDocs(sitesCollection);
-export const subscribeToSites = (callback) => 
-  onSnapshot(sitesCollection, callback);
+export function subscribeToSites(callback) {
+  return onSnapshot(collection(db, "sites"), callback);
+}
+
+export async function addSite(site) {
+  await addDoc(collection(db, "sites"), site);
+}
+
+export async function updateSite(id, data) {
+  await updateDoc(doc(db, "sites", id), data);
+}
+
+export async function deleteSite(id) {
+  await deleteDoc(doc(db, "sites", id));
+}
 
 // 기성현황 관련 함수
 export const addProgress = (progressData) => addDoc(progressCollection, progressData);
