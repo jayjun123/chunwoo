@@ -410,14 +410,7 @@
     function renderStatus() {
       // 예시 현장 리스트
       let sites = JSON.parse(localStorage.getItem("sites") || "[]");
-      if (sites.length === 0) {
-        sites = [
-          { name: "현장A", status: "진행중" },
-          { name: "현장B", status: "진행중" },
-          { name: "현장C", status: "진행중" }
-        ];
-        localStorage.setItem("sites", JSON.stringify(sites));
-      }
+      localStorage.setItem("sites", JSON.stringify(sites));
       // 달력 데이터
       const today = new Date();
       const year = today.getFullYear();
