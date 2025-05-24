@@ -7,7 +7,8 @@ import {
   query,
   where,
   getDocs,
-  onSnapshot
+  onSnapshot,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -29,11 +30,20 @@ export function subscribeToSites(callback) {
 }
 
 export async function addSite(site) {
-  await addDoc(collection(db, "sites"), site);
+  const docRef = await addDoc(sitesCollection, {
+    ...site,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return docRef.id;
 }
 
 export async function updateSite(id, data) {
-  await updateDoc(doc(db, "sites", id), data);
+  const siteRef = doc(db, "sites", id);
+  await updateDoc(siteRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
 }
 
 export async function deleteSite(id) {
@@ -41,24 +51,98 @@ export async function deleteSite(id) {
 }
 
 // 기성현황 관련 함수
-export const addProgress = (progressData) => addDoc(progressCollection, progressData);
-export const updateProgress = (id, data) => updateDoc(doc(progressCollection, id), data);
+export async function addProgress(progress) {
+  const docRef = await addDoc(progressCollection, {
+    ...progress,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return docRef.id;
+}
+
+export async function updateProgress(id, data) {
+  const progressRef = doc(db, "progress", id);
+  await updateDoc(progressRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function deleteProgress(id) {
+  await deleteDoc(doc(db, "progress", id));
+}
+
 export const getProgressBySite = (siteId) => 
   query(progressCollection, where('siteId', '==', siteId));
+
 export const subscribeToProgress = (callback) => 
   onSnapshot(progressCollection, callback);
 
 // 협의하기 관련 함수
-export const addDiscussion = (discussionData) => addDoc(discussionsCollection, discussionData);
+export async function addDiscussion(discussion) {
+  const docRef = await addDoc(discussionsCollection, {
+    ...discussion,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return docRef.id;
+}
+
+export async function updateDiscussion(id, data) {
+  const discussionRef = doc(db, "discussions", id);
+  await updateDoc(discussionRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function deleteDiscussion(id) {
+  await deleteDoc(doc(db, "discussions", id));
+}
+
 export const getDiscussionsBySite = (siteId) => 
   query(discussionsCollection, where('siteId', '==', siteId));
+
 export const subscribeToDiscussions = (callback) => 
   onSnapshot(discussionsCollection, callback);
 
 // 회원관리 관련 함수
 export const addUser = (userData) => addDoc(usersCollection, userData);
-export const updateUser = (id, data) => updateDoc(doc(usersCollection, id), data);
+export async function updateUser(id, data) {
+  const userRef = doc(db, "users", id);
+  await updateDoc(userRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
+}
+
 export const getUserByEmail = (email) => 
   query(usersCollection, where('email', '==', email));
+
 export const subscribeToUsers = (callback) => 
-  onSnapshot(usersCollection, callback); 
+  onSnapshot(usersCollection, callback);
+
+// 모든 예시 데이터 삭제
+export async function deleteAllExampleData() {
+  try {
+    // sites 컬렉션의 모든 문서 삭제
+    const sitesSnapshot = await getDocs(sitesCollection);
+    const sitesDeletePromises = sitesSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(sitesDeletePromises);
+
+    // progress 컬렉션의 모든 문서 삭제
+    const progressSnapshot = await getDocs(progressCollection);
+    const progressDeletePromises = progressSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(progressDeletePromises);
+
+    // discussions 컬렉션의 모든 문서 삭제
+    const discussionsSnapshot = await getDocs(discussionsCollection);
+    const discussionsDeletePromises = discussionsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(discussionsDeletePromises);
+
+    console.log('모든 예시 데이터가 삭제되었습니다.');
+  } catch (error) {
+    console.error('데이터 삭제 중 오류 발생:', error);
+    throw error;
+  }
+} 

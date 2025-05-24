@@ -9,6 +9,7 @@ import DiscussionList from './components/DiscussionList'
 import UserList from './components/UserList'
 import Calendar from './components/Calendar'
 import LoginForm from './components/LoginForm'
+import DeleteExampleData from './components/DeleteExampleData'
 import { subscribeAuthState } from './services/auth'
 import { UserProvider, useUser } from './components/UserContext'
 import './App.css'
@@ -44,6 +45,7 @@ function AppContent({ activeTab, setActiveTab }) {
         {activeTab === 'discussion' && <DiscussionList />}
         {activeTab === 'users' && <UserList />}
         {activeTab === 'calendar' && <Calendar />}
+        {userData.role === 'admin' && <DeleteExampleData />}
       </main>
       <button onClick={logout}>로그아웃</button>
     </div>

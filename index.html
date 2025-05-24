@@ -271,13 +271,24 @@
   <main id="main"></main>
   <div id="popup-root"></div>
   <script>
-   
+    // Firebase 초기화
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxQxQxQxQxQxQxQxQxQxQxQxQxQxQxQxQ",
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "your-sender-id",
+      appId: "your-app-id"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Firebase Authentication 영구 로그인 설정
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch((error) => {
+        console.error("Auth persistence error:", error);
+      });
+
     // 권한/계정 정보
-    const USERS = [
-      { id: "fire8803", pw: "power520", role: "master" },
-      { id: "admin", pw: "8657", role: "admin" },
-      { id: "user1", pw: "1111", role: "user" }
-    ];
     const MENUS = [
       { key: "main", label: "Chunwoo", roles: ["master","admin","user"] },
       { key: "status", label: "공사현황", roles: ["master","admin","user"] },
@@ -325,25 +336,46 @@
       });
     }
 
+    // 권한/계정 정보
+    const masterEmails = ['fire8803@naver.com', 'chunwoo0688@naver.com'];
+    
+    // 마스터 권한 확인
+    function isMasterUser(email) {
+      return masterEmails.includes(email);
+    }
+
     // 로그인 처리
     function login() {
       const id = document.getElementById("login-id").value.trim();
       const pw = document.getElementById("login-pw").value.trim();
-      const user = USERS.find(u => u.id === id && u.pw === pw);
-      if (!user) {
-        document.getElementById("login-error").textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
-        return;
-      }
-      currentUser = user;
-      setToday();
-      renderHeader();
-      renderMenu("main");
+      
+      // Firebase Authentication을 사용한 로그인
+      firebase.auth().signInWithEmailAndPassword(id, pw)
+        .then((userCredential) => {
+          currentUser = userCredential.user;
+          // 마스터 권한 확인
+          if (isMasterUser(currentUser.email)) {
+            currentUser.isMaster = true;
+          }
+          setToday();
+          renderHeader();
+          renderMenu("main");
+        })
+        .catch((error) => {
+          document.getElementById("login-error").textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
+        });
     }
 
     // 로그아웃
     function logout() {
-      currentUser = null;
-      renderLogin();
+      firebase.auth().signOut()
+        .then(() => {
+          currentUser = null;
+          renderLogin();
+        })
+        .catch((error) => {
+          console.error("Logout error:", error);
+        });
     }
 
     // 헤더/네비게이션 렌더링
@@ -410,14 +442,7 @@
     function renderStatus() {
       // 예시 현장 리스트
       let sites = JSON.parse(localStorage.getItem("sites") || "[]");
-      if (sites.length === 0) {
-        sites = [
-          { name: "현장A", status: "진행중" },
-          { name: "현장B", status: "진행중" },
-          { name: "현장C", status: "진행중" }
-        ];
-        localStorage.setItem("sites", JSON.stringify(sites));
-      }
+      localStorage.setItem("sites", JSON.stringify(sites));
       // 달력 데이터
       const today = new Date();
       const year = today.getFullYear();
@@ -2134,131 +2159,22 @@
       renderPartner();
     }
 
-    // 회원명단 화면 및 회원 데이터 관리 함수 추가
-    function renderMembers() {
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      if (!members.find(m=>m.id==='fire8803')) members.push({id:'fire8803',name:'관리자',org:'총괄',pw:'power520',role:'master',status:'승인'});
-      if (!members.find(m=>m.id==='admin')) members.push({id:'admin',name:'관리자',org:'A회사',pw:'8657',role:'admin',status:'승인'});
-      localStorage.setItem('members', JSON.stringify(members));
-      let reqList = members.filter(m=>m.status==='요청');
-      let userList = members.filter(m=>m.status==='승인'&&m.role==='user');
-      let adminList = members.filter(m=>m.status==='승인'&&m.role==='admin');
-      let master = members.find(m=>m.id==='fire8803');
-      function memberTable(list, type, tableIdx) {
-        const needScroll = list.length > 5;
-        return `<div style='overflow-x:auto;max-height:${needScroll?"270px":"none"};overflow-y:${needScroll?"auto":"visible"};border-radius:10px;'>
-          <table style='width:100%;border-collapse:collapse;background:var(--bg-card);color:#fff;'>
-            <thead><tr style='background:var(--bg-header);color:#fff;'>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>아이디</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>이름</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>소속</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>비밀번호</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>마스터</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>관리자</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>일반회원</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>요청</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>회원거절</th><th style='padding:8px 10px;border-bottom:2px solid var(--border);'>권한변경</th>
-            </tr></thead><tbody>
-              ${list.map((m,idx)=>`<tr style='background:var(--bg-card);color:#fff;height:50px;'>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.id}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.name}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.org}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>
-                  <span id='pw-hide-mem-${tableIdx}-${idx}'>●●●●●</span><span id='pw-show-mem-${tableIdx}-${idx}' style='display:none;'>${m.pw}</span>
-                  <span style='cursor:pointer;vertical-align:middle;margin-left:4px;' onclick='togglePwShowMem(${tableIdx},${idx})'>👁️</span>
-                </td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${m.role==='master'?'●':''}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${m.role==='admin'?'●':''}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${m.role==='user'&&m.status==='승인'?'●':''}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${m.status==='요청'?'●':''}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${m.status==='거절'?'●':''}</td>
-                <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${renderRoleSelect(m,type)}</td>
-              </tr>`).join('')}
-            </tbody></table></div>`;
-      }
-      let html = `<div class='container card'><div style='display:flex;justify-content:space-between;align-items:center;'><h2>회원명단</h2><button onclick='renderAllMembers()' style='background:#2563eb;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-weight:700;font-size:1rem;'>회원 전체 리스트</button></div>
-        <div style='font-size:1.3rem;font-weight:700;color:#2563eb;margin-bottom:18px;'>회원현황</div>
-        <div style='margin-bottom:36px;'>
-          <div style='font-size:1.1rem;font-weight:700;margin-bottom:6px;'>신청목록</div>
-          ${memberTable(reqList,'req',0)}
-        </div>
-        <div style='margin-bottom:36px;'>
-          <div style='font-size:1.1rem;font-weight:700;margin-bottom:6px;'>일반회원</div>
-          ${memberTable(userList,'user',1)}
-        </div>
-        <div style='margin-bottom:0;'>
-          <div style='font-size:1.1rem;font-weight:700;margin-bottom:6px;'>관리자</div>
-          ${memberTable(adminList,'admin',2)}
-        </div>
-      </div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    // 권한변경 함수
-    window.changeMemberRole = function(id, value) {
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      let m = members.find(m=>m.id===id);
-      if(!m) return;
-      if(id==='fire8803') return alert('마스터는 변경할 수 없습니다.');
-      if(currentUser.role!=='master'&&m.role==='admin') return alert('관리자는 마스터만 변경할 수 있습니다.');
-      if(value==='admin') { m.role='admin'; m.status='승인'; }
-      else if(value==='user'||value==='승인') { m.role='user'; m.status='승인'; }
-      else if(value==='요청') { m.status='요청'; m.role='user'; }
-      else if(value==='거절') { m.status='거절'; m.role='user'; }
-      localStorage.setItem('members', JSON.stringify(members));
-      renderMembers();
-    }
-    // 회원가입 시 요청회원으로 등록
-    window.signup = function() {
-      const id = document.getElementById('signup-id').value.trim();
-      const pw = document.getElementById('signup-pw').value.trim();
-      const name = document.getElementById('signup-name').value.trim();
-      const org = document.getElementById('signup-org').value.trim();
-      if(!id||!pw||!name||!org) return alert('모든 항목을 입력하세요.');
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      if(members.find(m=>m.id===id)) return alert('이미 존재하는 아이디입니다.');
-      members.push({id,name,org,pw,role:'user',status:'요청'});
-      localStorage.setItem('members', JSON.stringify(members));
-      alert('회원가입 신청이 완료되었습니다. 관리자의 승인을 기다려주세요.');
-      renderLogin();
-    }
-    // 로그인 시 승인 여부 체크
-    function login() {
-      const id = document.getElementById("login-id").value.trim();
-      const pw = document.getElementById("login-pw").value.trim();
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      const user = members.find(u => u.id === id && u.pw === pw);
-      if (!user) {
-        document.getElementById("login-error").textContent = "아이디 또는 비밀번호가 올바르지 않습니다.";
-        return;
-      }
-      if(user.status!=='승인') {
-        document.getElementById("login-error").textContent = "관리자에게 승인을 요청했습니다.";
-        return;
-      }
-      currentUser = user;
-      setToday();
-      renderHeader();
-      renderMenu("main");
-    }
-    // 회원가입 화면 렌더링 보완
-    function renderSignup() {
-      document.getElementById("header").style.display = "none";
-      document.getElementById("main").innerHTML = `
-        <div class="login-box">
-          <h2>회원가입</h2>
-          <input id="signup-id" type="text" placeholder="아이디" autocomplete="username"/>
-          <input id="signup-pw" type="password" placeholder="비밀번호" autocomplete="new-password"/>
-          <input id="signup-name" type="text" placeholder="이름"/>
-          <input id="signup-org" type="text" placeholder="소속"/>
-          <button class="login-btn" onclick="signup()">회원가입</button>
-          <button class="signup-btn" onclick="renderLogin()">로그인으로</button>
-          <div class="error-msg" id="signup-error"></div>
-        </div>
-      `;
-    }
-
-    // 페이지 로드 시 마스터/관리자 계정 보장
+      // 페이지 로드 시 Firebase Authentication 상태 확인
     (function(){
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      if (!members.find(m=>m.id==='fire8803')) {
-        members.push({id:'fire8803',name:'관리자',org:'총괄',pw:'power520',role:'master',status:'승인'});
-      }
-      if (!members.find(m=>m.id==='parkmg0688')) {
-        members.push({id:'parkmg0688',name:'관리자',org:'A회사',pw:'Lastout9485!',role:'admin',status:'승인'});
-      }
-      localStorage.setItem('members', JSON.stringify(members));
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          currentUser = user;
+          // 마스터 권한 확인
+          if (isMasterUser(currentUser.email)) {
+            currentUser.isMaster = true;
+          }
+          setToday();
+          renderHeader();
+          renderMenu("main");
+        } else {
+          renderLogin();
+        }
+      });
     })();
 
     // 전체 다운로드(xlsx 여러 시트) 함수 추가
@@ -2288,74 +2204,7 @@
       XLSX.writeFile(wb, '거래처_전체리스트.xlsx');
     }
 
-    // 메뉴권한 화면 함수 추가
-    function renderMenuAuth() {
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      let menuAuth = JSON.parse(localStorage.getItem('menuAuth') || '{}');
-      let tempMenuAuth = JSON.parse(JSON.stringify(menuAuth)); // 임시 상태
-      const menus = [
-        { key: "main", label: "건설NEWS" },
-        { key: "status", label: "공사현황" },
-        { key: "detail", label: "현장세부내역" },
-        { key: "negotiate", label: "협의하기" },
-        { key: "progress", label: "기성현황" },
-        { key: "partner", label: "거래처 현황" },
-        { key: "members", label: "회원명단" },
-        { key: "menuauth", label: "메뉴권한" },
-        { key: "allmembers", label: "회원 전체 리스트", roles: ["master","admin"] },
-      ];
-      // 표 헤더
-      let table = `<div style='overflow-x:auto;'><table style='width:100%;border-collapse:collapse;background:var(--bg-card);color:#fff;'>
-        <thead><tr style='background:var(--bg-header);color:#fff;'>
-          <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>아이디</th>
-          <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>이름</th>
-          <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>권한</th>
-          ${menus.map(m=>`<th style='padding:8px 10px;border-bottom:2px solid var(--border);'>${m.label}</th>`).join('')}
-          <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>삭제</th>
-        </tr></thead><tbody>`;
-      members.forEach(m => {
-        table += `<tr style='background:var(--bg-card);color:#fff;'>
-          <td style='padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#3b82f6;'>${m.id}</td>
-          <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.name}</td>
-          <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.role==='master'?'마스터':m.role==='admin'?'관리자':'일반회원'}</td>`;
-        menus.forEach(menu => {
-          if(m.role==='master') {
-            if(tempMenuAuth[m.id]===undefined) tempMenuAuth[m.id]={};
-            tempMenuAuth[m.id][menu.key]=true;
-            table += `<td style='text-align:center;color:#22c55e;font-size:1.2em;border-bottom:1px solid var(--border);'>●</td>`;
-          } else {
-            if(tempMenuAuth[m.id]===undefined) tempMenuAuth[m.id]={};
-            if(tempMenuAuth[m.id][menu.key]===undefined) {
-              tempMenuAuth[m.id][menu.key]=m.role==='admin'||m.role==='master'?true:['main','status','detail','negotiate','partner'].includes(menu.key);
-            }
-            // 마스터/관리자만 체크박스 활성화
-            if(currentUser.role==='master'||currentUser.role==='admin') {
-              table += `<td style='text-align:center;border-bottom:1px solid var(--border);'><input type='checkbox' ${tempMenuAuth[m.id][menu.key]?'checked':''} onchange='tempChangeMenuAuth("${m.id}","${menu.key}",this.checked)' style='width:18px;height:18px;'></td>`;
-            } else {
-              table += `<td style='text-align:center;color:${tempMenuAuth[m.id][menu.key]?'#2563eb':'#b3b8c5'};font-size:1.2em;border-bottom:1px solid var(--border);'>${tempMenuAuth[m.id][menu.key]?'●':''}</td>`;
-            }
-          }
-        });
-        // 삭제 버튼(마스터/본인 삭제 불가)
-        if(m.role==='master'||m.id===currentUser.id) {
-          table += `<td style='text-align:center;color:#b3b8c5;border-bottom:1px solid var(--border);'>-</td>`;
-        } else {
-          table += `<td style='text-align:center;border-bottom:1px solid var(--border);'><button onclick='deleteMember("${m.id}")' style='background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;'>삭제</button></td>`;
-        }
-        table += `</tr>`;
-      });
-      table += `</tbody></table></div>`;
-      let html = `<div class='container card'><h2>메뉴권한</h2>
-        <div style='font-size:1.15rem;font-weight:700;color:#2563eb;margin-bottom:18px;'>회원별 메뉴 접근 권한 관리</div>
-        ${table}
-        <div style='margin-top:18px;display:flex;gap:12px;'>
-          <button onclick='saveMenuAuth()' style='background:#22c55e;color:#fff;border:none;border-radius:6px;padding:10px 28px;font-size:1.1rem;font-weight:700;'>저장</button>
-        </div>
-        <div style='color:#b3b8c5;font-size:0.98rem;margin-top:12px;'>마스터는 모든 메뉴 접근 가능하며, 권한 변경/삭제가 불가능합니다.<br>관리자/마스터만 권한 변경 및 회원 삭제가 가능합니다.<br>저장 버튼을 눌러야 변경사항이 반영됩니다.</div>
-      </div>`;
-      window._tempMenuAuth = tempMenuAuth; // 임시 상태를 window에 저장
-      document.getElementById('main').innerHTML = html;
-    }
+
     // 체크박스 임시 변경 함수
     window.tempChangeMenuAuth = function(id, menuKey, checked) {
       if(!window._tempMenuAuth) return;
@@ -2369,84 +2218,8 @@
       alert('저장되었습니다.');
       renderMenuAuth();
     }
-    // 회원 삭제 함수
-    window.deleteMember = function(id) {
-      if(!confirm('정말 삭제하시겠습니까?')) return;
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      members = members.filter(m=>m.id!==id);
-      localStorage.setItem('members', JSON.stringify(members));
-      let menuAuth = JSON.parse(localStorage.getItem('menuAuth') || '{}');
-      delete menuAuth[id];
-      localStorage.setItem('menuAuth', JSON.stringify(menuAuth));
-      renderMenuAuth();
-    }
-    // 회원 전체 리스트(데이터베이스4) 화면 함수 추가
-    function renderAllMembers() {
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      const needScroll = members.length > 5;
-      let html = `<div class='container card'>
-        <div style='font-size:1.1rem;font-weight:700;color:#2563eb;margin-bottom:18px;'>전체 회원 정보</div>
-        <div style='overflow-x:auto;max-height:${needScroll?"270px":"none"};overflow-y:${needScroll?"auto":"visible"};border-radius:10px;'>
-          <table style='width:100%;border-collapse:collapse;background:var(--bg-card);color:#fff;'>
-            <thead><tr style='background:var(--bg-header);color:#fff;'>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>아이디</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>이름</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>소속</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>비밀번호</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>권한</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>상태</th>
-              <th style='padding:8px 10px;border-bottom:2px solid var(--border);'>삭제</th>
-            </tr></thead><tbody>
-            ${members.map((m,idx)=>`<tr style='background:var(--bg-card);color:#fff;height:50px;'>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#3b82f6;'>${m.id}</td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.name}</td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.org}</td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);'><span id='pw-hide-${idx}'>●●●●●</span><span id='pw-show-${idx}' style='display:none;'>${m.pw}</span> <span style='cursor:pointer;vertical-align:middle;' onclick='togglePwShow(${idx})'>👁️</span></td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.role==='master'?'마스터':m.role==='admin'?'관리자':'일반회원'}</td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);'>${m.status}</td>
-              <td style='padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;'>${(m.role==='master'||m.id===currentUser.id)?'-':`<button onclick='deleteMemberAllList("${m.id}")' style='background:#ef4444;color:#fff;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;'>삭제</button>`}</td>
-            </tr>`).join('')}
-            </tbody></table>
-        </div>
-        <div style='color:#b3b8c5;font-size:0.98rem;margin-top:12px;'>삭제 버튼을 누르기 전까지 회원 데이터는 항상 보존됩니다.</div>
-      </div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    // 회원 전체 리스트에서 삭제 함수(실제 삭제)
-    window.deleteMemberAllList = function(id) {
-      if(!confirm('정말 삭제하시겠습니까?')) return;
-      let members = JSON.parse(localStorage.getItem('members') || '[]');
-      members = members.filter(m=>m.id!==id);
-      localStorage.setItem('members', JSON.stringify(members));
-      let menuAuth = JSON.parse(localStorage.getItem('menuAuth') || '{}');
-      delete menuAuth[id];
-      localStorage.setItem('menuAuth', JSON.stringify(menuAuth));
-      renderAllMembers();
-    }
-    // 비밀번호 눈 아이콘 토글 함수
-    window.togglePwShow = function(idx) {
-      const hide = document.getElementById('pw-hide-'+idx);
-      const show = document.getElementById('pw-show-'+idx);
-      if(hide.style.display==='none') {
-        hide.style.display='';
-        show.style.display='none';
-      } else {
-        hide.style.display='none';
-        show.style.display='';
-      }
-    }
-    // 회원명단 비밀번호 눈 아이콘 토글 함수
-    window.togglePwShowMem = function(tableIdx, idx) {
-      const hide = document.getElementById('pw-hide-mem-'+tableIdx+'-'+idx);
-      const show = document.getElementById('pw-show-mem-'+tableIdx+'-'+idx);
-      if(hide.style.display==='none') {
-        hide.style.display='';
-        show.style.display='none';
-      } else {
-        hide.style.display='none';
-        show.style.display='';
-      }
-    }
+
+   
   </script>
 </body>
 </html>
