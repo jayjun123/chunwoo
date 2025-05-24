@@ -4,12 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   // Firebase 설정 정보를 여기에 입력해주세요
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyATCGXGD2_teiJFdpng9J2_fvZRItPef0w",
+  authDomain: "chunwooo-edf9f.firebaseapp.com",
+  projectId: "chunwooo-edf9f",
+  storageBucket: "chunwooo-edf9f.firebasestorage.app",
+  messagingSenderId: "417029078660",
+  appId: "1:417029078660:web:ea61b4c0bcab6df2598cd1"
+  measurementId: "G-MYX2PWNLVD"
 };
 
 const app = initializeApp(firebaseConfig);
