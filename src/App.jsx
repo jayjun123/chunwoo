@@ -47,9 +47,10 @@ function OrientationLock() {
   );
 }
 
-function AppContent({ activeTab, setActiveTab }) {
+function AppContent() {
   const { currentUser } = useAuth();
   const { user, userData, loading, logout } = useUser();
+  const [activeTab, setActiveTab] = useState('main');
 
   if (loading) return <div>로딩 중...</div>;
   if (!user) return <LoginForm />;
