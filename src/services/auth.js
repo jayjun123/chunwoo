@@ -5,7 +5,8 @@ import {
   onAuthStateChanged, 
   createUserWithEmailAndPassword,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 
@@ -101,4 +102,8 @@ export async function migrateUsers() {
       }
     }
   }
-} 
+}
+
+export const sendPasswordReset = async (email) => {
+  return await sendPasswordResetEmail(auth, email);
+}; 
