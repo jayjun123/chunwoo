@@ -160,7 +160,7 @@ export default function ProgressList() {
       <div className="left-panel">
         <div className="progress-list-container">
           <div className="progress-list-header">
-            <h2>기성현황</h2>
+      <h2>기성현황</h2>
             <div style={{display:'flex',gap:8}}>
               <select value={selectedSite} onChange={e=>setSelectedSite(e.target.value)}>
                 <option value="">전체 현장</option>
@@ -169,47 +169,47 @@ export default function ProgressList() {
               <input type="month" value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)} style={{height:36}} />
               <button onClick={()=>setShowAllList(true)}>전체리스트</button>
               {isAdmin && <button onClick={()=>openModal(null)}>+ 새 기성</button>}
-              <button onClick={downloadExcel}>엑셀 다운로드</button>
-              {isAdmin && <input type="file" accept=".xlsx,.xls" ref={fileInputRef} style={{display:'none'}} onChange={handleExcelUpload} />}
-              {isAdmin && <button onClick={()=>fileInputRef.current && fileInputRef.current.click()}>엑셀 업로드</button>}
+        <button onClick={downloadExcel}>엑셀 다운로드</button>
+        {isAdmin && <input type="file" accept=".xlsx,.xls" ref={fileInputRef} style={{display:'none'}} onChange={handleExcelUpload} />}
+        {isAdmin && <button onClick={()=>fileInputRef.current && fileInputRef.current.click()}>엑셀 업로드</button>}
             </div>
-          </div>
-          {error && <div className="error-message">{error}</div>}
+      </div>
+      {error && <div className="error-message">{error}</div>}
           <div className="progress-list">
             <table>
-              <thead>
-                <tr>
-                  <th>현장명</th>
+        <thead>
+          <tr>
+            <th>현장명</th>
                   <th>계약금액</th>
                   <th>선급금</th>
                   <th>전체기성</th>
-                  <th>기성월</th>
-                  <th>기성금액</th>
-                  <th>비고</th>
-                  {isAdmin && <th>관리</th>}
-                </tr>
-              </thead>
-              <tbody>
+            <th>기성월</th>
+            <th>기성금액</th>
+            <th>비고</th>
+            {isAdmin && <th>관리</th>}
+          </tr>
+        </thead>
+        <tbody>
                 {filteredProgress.map(row => {
                   const site = sites.find(s=>s.id===row.siteId);
                   return (
-                    <tr key={row.id} style={{background:'#232837'}}>
+              <tr key={row.id} style={{background:'#232837'}}>
                       <td>{site?.name||''}</td>
                       <td>{site?.contractAmount ? Number(site.contractAmount).toLocaleString() : ''}</td>
                       <td>{site?.advanceAmount ? Number(site.advanceAmount).toLocaleString() : ''}</td>
                       <td>{site?.totalProgress ? Number(site.totalProgress).toLocaleString() : ''}</td>
-                      <td>{row.month}</td>
+                <td>{row.month}</td>
                       <td>{Number(row.amount).toLocaleString()}</td>
-                      <td>{row.remarks}</td>
-                      {isAdmin && <td>
+                <td>{row.remarks}</td>
+                {isAdmin && <td>
                         <button onClick={()=>openModal(row)}>수정</button>
-                        <button onClick={()=>handleDelete(row.id)}>삭제</button>
-                      </td>}
-                    </tr>
+                  <button onClick={()=>handleDelete(row.id)}>삭제</button>
+                </td>}
+              </tr>
                   );
                 })}
-              </tbody>
-            </table>
+        </tbody>
+      </table>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@ export default function ProgressList() {
             }}
             onCancel={closeModal}
           />
-        )}
+      )}
       </div>
       <style>{`
         @media (max-width: 700px) {
@@ -260,10 +260,10 @@ function ProgressModal({ row, sites, onSave, onCancel }) {
       <div className="progress-modal">
         <h3>{row ? '기성 수정' : '새 기성 등록'}</h3>
         <form onSubmit={handleSubmit}>
-          <select name="siteId" value={form.siteId} onChange={handleChange} required>
-            <option value="">현장 선택</option>
-            {sites.map(s=>(<option key={s.id} value={s.id}>{s.name}</option>))}
-          </select>
+        <select name="siteId" value={form.siteId} onChange={handleChange} required>
+          <option value="">현장 선택</option>
+          {sites.map(s=>(<option key={s.id} value={s.id}>{s.name}</option>))}
+        </select>
           <input name="month" type="month" value={form.month} onChange={handleChange} required />
           <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="기성금액" required />
           <input name="remarks" value={form.remarks} onChange={handleChange} placeholder="비고" />

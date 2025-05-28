@@ -188,35 +188,35 @@ export default function DiscussionList() {
           <div className="discussion-list-header">
             <h2>협의하기</h2>
             <button onClick={()=>setShowAllList(true)} style={{marginLeft:8}}>전체리스트</button>
-          </div>
-          {error && <div className="error-message">{error}</div>}
-          {isAdding && isAdmin && (
-            <DiscussionEditForm sites={sites} onSave={handleAdd} onCancel={()=>setIsAdding(false)} />
-          )}
+      </div>
+      {error && <div className="error-message">{error}</div>}
+      {isAdding && isAdmin && (
+        <DiscussionEditForm sites={sites} onSave={handleAdd} onCancel={()=>setIsAdding(false)} />
+      )}
           <div className="discussion-chat-list" ref={chatListRef}>
-            {filteredDiscussions.length === 0 && <div>협의 내역이 없습니다.</div>}
-            {filteredDiscussions.map(row => (
+        {filteredDiscussions.length === 0 && <div>협의 내역이 없습니다.</div>}
+        {filteredDiscussions.map(row => (
               <div className="discussion-chat-item" key={row.id}>
                 <div className="chat-meta">
                   <span className="chat-writer">{row.writerName||row.writerEmail}</span>
                   <span className="chat-time">{row.createdAt ? new Date(row.createdAt.seconds*1000).toLocaleString() : ''}</span>
-                  <span className={`status-badge ${row.status}`}>{row.status}</span>
-                </div>
+              <span className={`status-badge ${row.status}`}>{row.status}</span>
+            </div>
                 {row.imageUrl && <img src={row.imageUrl} alt="첨부이미지" className="chat-image" />}
                 <div className="chat-content">{row.content}</div>
                 <div className="chat-actions">
-                  {isAdmin && (
-                    <select value={row.status} onChange={e=>handleStatusChange(row.id, e.target.value)}>
-                      {STATUS_TYPES.map(type=>(<option key={type} value={type}>{type}</option>))}
-                    </select>
-                  )}
+              {isAdmin && (
+                <select value={row.status} onChange={e=>handleStatusChange(row.id, e.target.value)}>
+                  {STATUS_TYPES.map(type=>(<option key={type} value={type}>{type}</option>))}
+                </select>
+              )}
                   {canDelete(row) && <>
                     <button className="delete-btn" onClick={()=>handleDelete(row.id)}>삭제</button>
                     <button className="chat-edit-btn" onClick={()=>handleEdit(row)}>수정</button>
                   </>}
-                </div>
-              </div>
-            ))}
+            </div>
+          </div>
+        ))}
           </div>
           <div className="discussion-chat-input-box">
             <input
@@ -283,4 +283,4 @@ function DiscussionEditForm({ sites, onSave, onCancel }) {
       </div>
     </form>
   );
-} 
+}

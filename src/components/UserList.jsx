@@ -307,7 +307,7 @@ function UserList() {
       const reader = new FileReader();
       
       reader.onload = async (e) => {
-        try {
+    try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
           const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -466,15 +466,15 @@ function UserList() {
             </div>
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message">{error}</div>}
           
           {loading ? (
             <div className="loading-spinner">로딩중...</div>
           ) : (
             <div className="user-list">
               <table>
-                <thead>
-                  <tr>
+        <thead>
+          <tr>
                     {COLUMNS.map(column => (
                       <th 
                         key={column.key}
@@ -489,19 +489,19 @@ function UserList() {
                         )}
                       </th>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+          </tr>
+        </thead>
+        <tbody>
                   {sortedData.map(u => (
                     <tr 
                       key={u.id} 
                       className={`user-row ${u.role==='master'?'master-row':''} ${selectedUser?.id === u.id ? 'selected' : ''}`}
                       onClick={() => handleRowClick(u)}
                     >
-                      <td>{u.email}</td>
-                      <td>{u.name}</td>
-                      <td>{u.org}</td>
-                      <td>
+              <td>{u.email}</td>
+              <td>{u.name}</td>
+              <td>{u.org}</td>
+              <td>
                         <select
                           value={edit[u.id]?.role ?? u.role}
                           onChange={e=>handleEdit(u.id, 'role', e.target.value)}
@@ -509,13 +509,13 @@ function UserList() {
                           className="role-select"
                           onClick={e => e.stopPropagation()}
                         >
-                          <option value="master">마스터</option>
-                          <option value="admin">관리자</option>
-                          <option value="user">일반회원</option>
+                  <option value="master">마스터</option>
+                  <option value="admin">관리자</option>
+                  <option value="user">일반회원</option>
                           <option value="request">요청</option>
-                        </select>
-                      </td>
-                      <td>
+                </select>
+              </td>
+              <td>
                         <select
                           value={edit[u.id]?.status ?? u.status}
                           onChange={e=>handleEdit(u.id, 'status', e.target.value)}
@@ -523,15 +523,15 @@ function UserList() {
                           className="status-select"
                           onClick={e => e.stopPropagation()}
                         >
-                          <option value="승인">승인</option>
-                          <option value="요청">요청</option>
-                          <option value="거절">거절</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  <option value="승인">승인</option>
+                  <option value="요청">요청</option>
+                  <option value="거절">거절</option>
+                </select>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
             </div>
           )}
 
@@ -571,8 +571,8 @@ function UserList() {
           )}
 
           <div className="info-text">
-            마스터는 항상 1명, 권한/승인 변경 불가. <br />
-            승인된 회원만 로그인 가능. <br />
+        마스터는 항상 1명, 권한/승인 변경 불가. <br />
+        승인된 회원만 로그인 가능. <br />
             권한/승인 변경 시 저장버튼을 눌러야 반영됩니다.
           </div>
         </div>
