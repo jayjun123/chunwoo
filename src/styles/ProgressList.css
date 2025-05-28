@@ -1,22 +1,51 @@
 .progress-list-container {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 24px;
+  background: #232837;
+  border-radius: 18px;
+  padding: 32px 40px;
   margin-top: 24px;
+  box-shadow: 0 4px 24px #0002;
 }
 
 .progress-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .progress-list-header h2 {
-  color: var(--text-main);
+  color: #fff;
   font-size: 1.5rem;
   font-weight: 700;
 }
+
+.progress-list-header select,
+.progress-list-header input[type="month"] {
+  background: #181c24;
+  color: #fff;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 1em;
+  margin-right: 6px;
+}
+
+.progress-list-header button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1em;
+  font-weight: 600;
+  margin-right: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.progress-list-header button:last-child { margin-right: 0; }
+
+.progress-list-header button:hover { background: #2563eb; }
 
 .add-progress-btn {
   background: var(--primary);
@@ -62,30 +91,51 @@
 
 .progress-list {
   overflow-x: auto;
+  margin-top: 8px;
 }
 
 .progress-list table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
+  min-width: 800px;
 }
 
 .progress-list th,
 .progress-list td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
+  padding: 14px 10px;
+  text-align: center;
+  border-bottom: 1.5px solid #333;
 }
 
 .progress-list th {
-  color: var(--text-sub);
-  font-weight: 500;
-  font-size: 0.95rem;
+  background: #181c24;
+  color: #3b82f6;
+  font-weight: 700;
+  font-size: 1.05em;
 }
 
 .progress-list td {
-  color: var(--text-main);
+  background: #232837;
+  color: #fff;
+  font-size: 1.05em;
 }
+
+.progress-list td button {
+  margin: 0 4px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.progress-list td button:first-child { background: #22c55e; color: #fff; }
+
+.progress-list td button:first-child:hover { background: #16a34a; }
+
+.progress-list td button:last-child { background: #ef4444; color: #fff; }
+
+.progress-list td button:last-child:hover { background: #b91c1c; }
 
 .delete-btn {
   background: var(--danger);
@@ -116,6 +166,39 @@
   padding: 24px;
 }
 
+/* 전체리스트 테이블 */
+.progress-all-list-container {
+  background: #232837;
+  border-radius: 18px;
+  padding: 32px 40px;
+  min-width: 800px;
+  box-shadow: 0 4px 24px #0002;
+}
+
+.progress-all-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+}
+
+.progress-all-list-table th,
+.progress-all-list-table td {
+  border: 1.5px solid #333;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.progress-all-list-table th {
+  background: #181c24;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.progress-all-list-table td {
+  background: #232837;
+  color: #fff;
+}
+
 @media (max-width: 768px) {
   .progress-list-container {
     padding: 16px;
@@ -130,4 +213,86 @@
     padding: 8px;
     font-size: 0.9rem;
   }
+}
+
+.progress-modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.progress-modal {
+  background: #232837;
+  border-radius: 16px;
+  padding: 36px 40px 28px 40px;
+  min-width: 340px;
+  box-shadow: 0 8px 32px #0005;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.progress-modal h3 {
+  color: #3b82f6;
+  font-size: 1.25em;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.progress-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 260px;
+}
+.progress-modal select,
+.progress-modal input[type="month"],
+.progress-modal input[type="number"],
+.progress-modal input[type="text"] {
+  background: #181c24;
+  color: #fff;
+  border: 1.5px solid #333;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 1em;
+}
+.progress-modal input:focus,
+.progress-modal select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+.modal-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.modal-btns button {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.modal-btns button[type="button"] {
+  background: #888;
+}
+.modal-btns button[type="button"]:hover {
+  background: #555;
+}
+.modal-btns button[type="submit"]:hover {
+  background: #2563eb;
+}
+.progress-modal .error-message {
+  color: #ef4444;
+  background: none;
+  padding: 0;
+  margin: 0 0 4px 0;
+  font-size: 0.98em;
+  text-align: left;
 } 

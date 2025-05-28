@@ -26,6 +26,26 @@ function App() {
   return <SiteList />;
 }
 
+function OrientationLock() {
+  const [isTabletPortrait, setIsTabletPortrait] = useState(false);
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1200;
+      const isPortrait = window.innerHeight > window.innerWidth;
+      setIsTabletPortrait(isTablet && isPortrait);
+    };
+    window.addEventListener('resize', checkOrientation);
+    checkOrientation();
+    return () => window.removeEventListener('resize', checkOrientation);
+  }, []);
+  if (!isTabletPortrait) return null;
+  return (
+    <div className="orientation-lock">
+      테블릿은 가로모드로만 이용 가능합니다.<br />기기를 돌려주세요.
+    </div>
+  );
+}
+
 function AppContent({ activeTab, setActiveTab }) {
   const { currentUser } = useAuth();
   const { user, userData, loading, logout } = useUser();
@@ -34,6 +54,14 @@ function AppContent({ activeTab, setActiveTab }) {
   if (!user) return <LoginForm />;
   if (!userData) return <div>회원 정보 불러오는 중...</div>;
   if (userData.status !== '승인') return <div>관리자 승인 대기 중입니다.</div>;
+
+  if (typeof window !== 'undefined') {
+    const isTablet = window.innerWidth >= 768 && window.innerWidth <= 1200;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    if (isTablet && isPortrait) {
+      return <OrientationLock />;
+    }
+  }
 
   return (
     <div className="app">

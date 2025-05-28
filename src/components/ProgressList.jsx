@@ -3,7 +3,7 @@ import { subscribeToProgress, addProgress, updateProgress, deleteDoc, doc, db, s
 import { useUser } from './UserContext';
 import * as XLSX from 'xlsx';
 
-function ProgressList() {
+export default function ProgressList() {
   const { userData } = useUser();
   const isAdmin = userData && (userData.role === 'admin' || userData.role === 'master');
   const [progressList, setProgressList] = useState([]);
@@ -13,6 +13,11 @@ function ProgressList() {
   const [isAdding, setIsAdding] = useState(false);
   const [editRow, setEditRow] = useState(null);
   const fileInputRef = useRef();
+  const [showAllList, setShowAllList] = useState(false);
+  const [selectedSite, setSelectedSite] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalRow, setModalRow] = useState(null);
 
   useEffect(() => {
     const unsub1 = subscribeToProgress(snapshot => {
@@ -90,51 +95,139 @@ function ProgressList() {
     }
   };
 
+  // 필터링
+  const filteredProgress = progressList.filter(row => {
+    const siteOk = selectedSite ? row.siteId === selectedSite : true;
+    const monthOk = selectedMonth ? row.month === selectedMonth : true;
+    return siteOk && monthOk;
+  });
+
+  // 모달 열기(추가/수정)
+  const openModal = (row) => {
+    setModalRow(row);
+    setModalOpen(true);
+  };
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalRow(null);
+  };
+
+  // 전체리스트 테이블 렌더링
+  if (showAllList) {
+    return (
+      <div className="progress-all-list-container">
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16}}>
+          <h2>전체 기성 리스트</h2>
+          <button onClick={()=>setShowAllList(false)}>돌아가기</button>
+        </div>
+        <table className="progress-all-list-table">
+          <thead>
+            <tr>
+              <th>현장명</th>
+              <th>계약금액</th>
+              <th>선급금</th>
+              <th>전체기성</th>
+              <th>기성월</th>
+              <th>기성금액</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            {progressList.map(row => {
+              const site = sites.find(s=>s.id===row.siteId);
+              return (
+                <tr key={row.id}>
+                  <td>{site?.name||''}</td>
+                  <td>{site?.contractAmount ? Number(site.contractAmount).toLocaleString() : ''}</td>
+                  <td>{site?.advanceAmount ? Number(site.advanceAmount).toLocaleString() : ''}</td>
+                  <td>{site?.totalProgress ? Number(site.totalProgress).toLocaleString() : ''}</td>
+                  <td>{row.month}</td>
+                  <td>{Number(row.amount).toLocaleString()}</td>
+                  <td>{row.remarks}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
   if (loading) return <div className="loading">로딩 중...</div>;
 
   return (
-    <div className="container card">
-      <h2>기성현황</h2>
-      <div style={{display:'flex',gap:8,marginBottom:12}}>
-        {isAdmin && <button onClick={()=>setIsAdding(true)}>+ 새 기성</button>}
-        <button onClick={downloadExcel}>엑셀 다운로드</button>
-        {isAdmin && <input type="file" accept=".xlsx,.xls" ref={fileInputRef} style={{display:'none'}} onChange={handleExcelUpload} />}
-        {isAdmin && <button onClick={()=>fileInputRef.current && fileInputRef.current.click()}>엑셀 업로드</button>}
+    <div className="layout-split">
+      <div className="left-panel">
+        <div className="progress-list-container">
+          <div className="progress-list-header">
+            <h2>기성현황</h2>
+            <div style={{display:'flex',gap:8}}>
+              <select value={selectedSite} onChange={e=>setSelectedSite(e.target.value)}>
+                <option value="">전체 현장</option>
+                {sites.map(s=>(<option key={s.id} value={s.id}>{s.name}</option>))}
+              </select>
+              <input type="month" value={selectedMonth} onChange={e=>setSelectedMonth(e.target.value)} style={{height:36}} />
+              <button onClick={()=>setShowAllList(true)}>전체리스트</button>
+              {isAdmin && <button onClick={()=>openModal(null)}>+ 새 기성</button>}
+              <button onClick={downloadExcel}>엑셀 다운로드</button>
+              {isAdmin && <input type="file" accept=".xlsx,.xls" ref={fileInputRef} style={{display:'none'}} onChange={handleExcelUpload} />}
+              {isAdmin && <button onClick={()=>fileInputRef.current && fileInputRef.current.click()}>엑셀 업로드</button>}
+            </div>
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          <div className="progress-list">
+            <table>
+              <thead>
+                <tr>
+                  <th>현장명</th>
+                  <th>계약금액</th>
+                  <th>선급금</th>
+                  <th>전체기성</th>
+                  <th>기성월</th>
+                  <th>기성금액</th>
+                  <th>비고</th>
+                  {isAdmin && <th>관리</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProgress.map(row => {
+                  const site = sites.find(s=>s.id===row.siteId);
+                  return (
+                    <tr key={row.id} style={{background:'#232837'}}>
+                      <td>{site?.name||''}</td>
+                      <td>{site?.contractAmount ? Number(site.contractAmount).toLocaleString() : ''}</td>
+                      <td>{site?.advanceAmount ? Number(site.advanceAmount).toLocaleString() : ''}</td>
+                      <td>{site?.totalProgress ? Number(site.totalProgress).toLocaleString() : ''}</td>
+                      <td>{row.month}</td>
+                      <td>{Number(row.amount).toLocaleString()}</td>
+                      <td>{row.remarks}</td>
+                      {isAdmin && <td>
+                        <button onClick={()=>openModal(row)}>수정</button>
+                        <button onClick={()=>handleDelete(row.id)}>삭제</button>
+                      </td>}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      {error && <div className="error-message">{error}</div>}
-      <table style={{width:'100%',marginTop:8,minWidth:600}}>
-        <thead>
-          <tr>
-            <th>현장명</th>
-            <th>기성월</th>
-            <th>기성금액</th>
-            <th>비고</th>
-            {isAdmin && <th>관리</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {progressList.map(row => (
-            editRow && editRow.id===row.id ? (
-              <ProgressEditRow key={row.id} row={editRow} sites={sites} onSave={handleUpdate} onCancel={()=>setEditRow(null)} />
-            ) : (
-              <tr key={row.id} style={{background:'#232837'}}>
-                <td>{sites.find(s=>s.id===row.siteId)?.name||''}</td>
-                <td>{row.month}</td>
-                <td>{Number(row.amount).toLocaleString()}원</td>
-                <td>{row.remarks}</td>
-                {isAdmin && <td>
-                  <button onClick={()=>setEditRow(row)}>수정</button>
-                  <button onClick={()=>handleDelete(row.id)}>삭제</button>
-                </td>}
-              </tr>
-            )
-          ))}
-        </tbody>
-      </table>
-      {/* 추가/수정 폼 */}
-      {isAdding && isAdmin && (
-        <ProgressEditRow row={{siteId:'',month:'',amount:'',remarks:''}} sites={sites} onSave={handleAdd} onCancel={()=>setIsAdding(false)} />
-      )}
+      <div className="right-panel">
+        {/* 입력/수정 모달 */}
+        {modalOpen && (
+          <ProgressModal
+            row={modalRow}
+            sites={sites}
+            onSave={async (form) => {
+              if (modalRow) await handleUpdate(form);
+              else await handleAdd(form);
+              closeModal();
+            }}
+            onCancel={closeModal}
+          />
+        )}
+      </div>
       <style>{`
         @media (max-width: 700px) {
           table { font-size:0.97em; min-width:480px; }
@@ -145,28 +238,42 @@ function ProgressList() {
   );
 }
 
-function ProgressEditRow({ row, sites, onSave, onCancel }) {
-  const [form, setForm] = useState(row);
+// 입력/수정 모달 컴포넌트
+function ProgressModal({ row, sites, onSave, onCancel }) {
+  const [form, setForm] = useState(row || {siteId:'',month:'',amount:'',remarks:''});
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleSubmit = async e => { e.preventDefault(); setSaving(true); await onSave(form); setSaving(false); };
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    try {
+      await onSave({ ...form, id: row?.id });
+    } catch (err) {
+      setError('저장 실패: ' + (err.message || ''));
+    }
+    setSaving(false);
+  };
   return (
-    <tr style={{background:'#181c24'}}>
-      <td>
-        <select name="siteId" value={form.siteId} onChange={handleChange} required>
-          <option value="">현장 선택</option>
-          {sites.map(s=>(<option key={s.id} value={s.id}>{s.name}</option>))}
-        </select>
-      </td>
-      <td><input name="month" type="month" value={form.month} onChange={handleChange} required /></td>
-      <td><input name="amount" type="number" value={form.amount} onChange={handleChange} required /></td>
-      <td><input name="remarks" value={form.remarks} onChange={handleChange} /></td>
-      <td>
-        <button onClick={handleSubmit} disabled={saving}>저장</button>
-        <button onClick={onCancel}>취소</button>
-      </td>
-    </tr>
+    <div className="progress-modal-bg">
+      <div className="progress-modal">
+        <h3>{row ? '기성 수정' : '새 기성 등록'}</h3>
+        <form onSubmit={handleSubmit}>
+          <select name="siteId" value={form.siteId} onChange={handleChange} required>
+            <option value="">현장 선택</option>
+            {sites.map(s=>(<option key={s.id} value={s.id}>{s.name}</option>))}
+          </select>
+          <input name="month" type="month" value={form.month} onChange={handleChange} required />
+          <input name="amount" type="number" value={form.amount} onChange={handleChange} placeholder="기성금액" required />
+          <input name="remarks" value={form.remarks} onChange={handleChange} placeholder="비고" />
+          {error && <div className="error-message">{error}</div>}
+          <div className="modal-btns">
+            <button type="submit" disabled={saving}>{row ? '수정' : '등록'}</button>
+            <button type="button" onClick={onCancel}>취소</button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-}
-
-export default ProgressList; 
+} 

@@ -11,6 +11,8 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { storage } from '../firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // 전체현장리스트 (데이터베이스 1)
 export const sitesCollection = collection(db, 'sites');
@@ -23,6 +25,9 @@ export const discussionsCollection = collection(db, 'discussions');
 
 // 회원현황 및 메뉴권한 (데이터베이스 4)
 export const usersCollection = collection(db, 'users');
+
+// 거래처현황 컬렉션
+export const vendorsCollection = collection(db, 'vendors');
 
 // 전체현장리스트 관련 함수
 export function subscribeToSites(callback) {
@@ -122,6 +127,30 @@ export const getUserByEmail = (email) =>
 export const subscribeToUsers = (callback) => 
   onSnapshot(usersCollection, callback);
 
+// 거래처현황 관련 함수
+export async function addVendor(vendor) {
+  const docRef = await addDoc(vendorsCollection, {
+    ...vendor,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return docRef.id;
+}
+
+export async function updateVendor(id, data) {
+  const vendorRef = doc(db, 'vendors', id);
+  await updateDoc(vendorRef, {
+    ...data,
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function deleteVendor(id) {
+  await deleteDoc(doc(db, 'vendors', id));
+}
+
+export const subscribeToVendors = (callback) => onSnapshot(vendorsCollection, callback);
+
 // 모든 예시 데이터 삭제
 export async function deleteAllExampleData() {
   try {
@@ -145,4 +174,14 @@ export async function deleteAllExampleData() {
     console.error('데이터 삭제 중 오류 발생:', error);
     throw error;
   }
+}
+
+// 협의하기 이미지 업로드
+export async function uploadDiscussionImage(file, userEmail) {
+  const ext = file.name.split('.').pop();
+  const fileName = `discussion/${userEmail}_${Date.now()}.${ext}`;
+  const storageRef = ref(storage, fileName);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+  return url;
 } 
