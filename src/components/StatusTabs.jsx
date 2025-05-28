@@ -3,6 +3,7 @@ import '../styles/StatusTabs.css';
 
 function StatusTabs({ activeTab, onTabChange }) {
   const tabs = [
+    { key: 'main', label: '건설NEWS' },
     { key: 'all', label: '공사현황' },
     { key: 'progress', label: '기성현황' },
     { key: 'discussion', label: '협의하기' },

@@ -12,6 +12,7 @@ import LoginForm from './components/LoginForm'
 import DeleteExampleData from './components/DeleteExampleData'
 import { subscribeAuthState } from './services/auth'
 import { UserProvider, useUser } from './components/UserContext'
+import NewsList from './components/NewsList'
 import './App.css'
 
 function App() {
@@ -68,6 +69,7 @@ function AppContent({ activeTab, setActiveTab }) {
       <Header />
       <main className="main-content">
         <StatusTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        {activeTab === 'main' && <NewsList />}
         {activeTab === 'all' && <SiteList />}
         {activeTab === 'progress' && <ProgressList />}
         {activeTab === 'discussion' && <DiscussionList />}
